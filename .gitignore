@@ -1,0 +1,8 @@
+**/.ipynb_checkpoints
+**/spark-warehouse
+.devcontainer.json
+**/__pycache__
+**/.DS_Store
+*parquet*
+**/*.pyc
+data/*
