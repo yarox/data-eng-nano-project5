@@ -1,0 +1,75 @@
+version: "3.7"
+
+x-airflow-base: &airflow-base
+    image: apache/airflow:1.10.11
+    environment:
+        - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+        - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres-airflow:5432/airflow
+        - AIRFLOW__CORE__LOAD_EXAMPLES=False
+        - AIRFLOW__CORE__FERNET_KEY=FB0o_zt4e3Ziq3LdUUO7F2Z95cvFFx16hU8jTeR1ASM=
+        - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+        - AIRFLOW__WEBSERVER__DAG_DEFAULT_VIEW=graph
+        - AIRFLOW__WEBSERVER__RBAC=True
+        - AIRFLOW_CONN_POSTGRES=postgresql://postgres:postgres@postgres-etl:5432/dev
+    volumes:
+        - ./services/airflow-webserver/src/plugins/:/opt/airflow/plugins/
+        - ./services/airflow-webserver/src/dags/:/opt/airflow/dags/
+        - ./services/airflow-webserver/config/:/opt/airflow/config/
+        - ./data/:/opt/airflow/data/
+        - airflow-logs:/opt/airflow/logs/
+
+services:
+    postgres-etl:
+        image: postgres:latest
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=dev
+            - POSTGRES_PORT=5433
+        ports:
+            - 5433:5433
+        volumes:
+            - ./data/:/opt/airflow/data/
+
+    postgres-airflow:
+        image: postgres:latest
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=airflow
+            - POSTGRES_PORT=5432
+        ports:
+            - 5432:5432
+
+    airflow-setup:
+        <<: *airflow-base
+        entrypoint: /opt/airflow/config/entrypoint.sh
+        depends_on:
+            - postgres-airflow
+
+    airflow-webserver:
+        <<: *airflow-base
+        restart: unless-stopped
+        command: webserver
+        ports:
+            - 8080:8080
+        depends_on:
+            - airflow-setup
+
+    airflow-scheduler:
+        <<: *airflow-base
+        restart: unless-stopped
+        command: scheduler
+        depends_on:
+            - airflow-setup
+
+    adminer:
+        image: adminer:latest
+        ports:
+            - 9090:8080
+        depends_on:
+            - postgres-airflow
+            - postgres-etl
+
+volumes:
+    airflow-logs:
