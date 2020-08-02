@@ -28,7 +28,7 @@ dag = DAG(
     'etl_s3_redshift',
     default_args=default_args,
     description='Load and transform S3 data into Redshift',
-    schedule_interval=None,
+    schedule_interval='@hourly',
 )
 
 start_task = DummyOperator(task_id='begin_execution', dag=dag)
