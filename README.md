@@ -35,7 +35,7 @@ We created a star schema optimized for queries on song play analysis using the p
 ![Data Warehouse ERD](images/data_warehouse_erd.png)
 
 ## Dependencies
-Make sure you have already installed both [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/). You don't need to install PostgreSQL or Apache Airflow yourself, as both are provided by the Docker images.
+Make sure you have already installed both [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/). You don't need to install PostgreSQL or Apache Airflow yourself, as everithing is provided by the Docker images.
 
 ## Setup
 ### Local Mode
